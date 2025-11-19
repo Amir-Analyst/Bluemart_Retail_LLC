@@ -19,10 +19,10 @@ st.set_page_config(
     layout="wide"
 )
 
-# Bluemart color palette
+# Bluemart color palette - optimized for both light and dark modes
 COLOR_PRIMARY = "#005f73"
 COLOR_ACCENT = "#0a9396"
-COLOR_SOFT = "#94d2bd"
+COLOR_SOFT = "#2ec4b6"  # Changed to vibrant teal for better dark mode visibility
 COLOR_BG = "#ffffff"
 CARD_BG = "#f6fbfb"
 
@@ -47,15 +47,56 @@ st.markdown(
 )
 
 # -------------------------------
-# 2️⃣ Load Dataset
+# 2️⃣ Load Dataset with Memory Optimization
 # -------------------------------
 @st.cache_data
 def load_data():
+    """
+    Load dashboard data with optimized memory usage.
+    Uses efficient dtypes and chunked processing for large datasets.
+    """
     try:
-        df = pd.read_csv(config.FILE_DASHBOARD_DATA)
-        df['date'] = pd.to_datetime(df['date'])
+        # Define optimized data types to reduce memory footprint
+        dtype_spec = {
+            'month': 'category',
+            'year': 'int16',
+            'store_id': 'category',
+            'store_name': 'category',
+            'category': 'category',
+            'channel': 'category',
+            'sku_id': 'category',
+            'sku_name': 'category',
+            'revenue': 'float32',
+            'profit': 'float32',
+            'quantity': 'float32'
+        }
+        
+        # Load data in chunks to avoid memory spike
+        chunks = []
+        chunk_size = 500000  # Process 500k rows at a time
+        
+        for chunk in pd.read_csv(
+            config.FILE_DASHBOARD_DATA,
+            dtype=dtype_spec,
+            parse_dates=['date'],
+            chunksize=chunk_size
+        ):
+            chunks.append(chunk)
+        
+        # Concatenate all chunks
+        df = pd.concat(chunks, ignore_index=True)
+        
+        # Log memory usage for monitoring
+        memory_mb = df.memory_usage(deep=True).sum() / 1024 / 1024
+        print(f"[OK] Dataset loaded: {len(df):,} rows, {memory_mb:.1f} MB in memory")
+        
         return df
+        
     except FileNotFoundError:
+        return None
+    except MemoryError as e:
+        st.error(f"❌ Memory error loading data: {e}")
+        st.info("💡 Try reducing the dataset size or use data aggregation in process_data.py")
         return None
 
 df = load_data()
@@ -334,7 +375,17 @@ try:
         profit=('profit', 'sum')
     ).reset_index()
     
+    # Convert store_id to same type for successful merge
+    # Dashboard data has store_id as category/float, stores file has it as int
+    store_perf['store_id'] = store_perf['store_id'].astype(str).str.replace('.0', '', regex=False)
+    stores_df['store_id'] = stores_df['store_id'].astype(str)
+    
+    # Merge with store master data
     store_perf = store_perf.merge(stores_df[['store_id', 'city', 'store_type']], on='store_id', how='left')
+    
+    # Validate merge was successful
+    if store_perf['city'].isna().all() or store_perf['store_type'].isna().all():
+        raise ValueError("Merge failed: No matching store_id values found")
     
     col_st1, col_st2 = st.columns(2)
     
@@ -412,8 +463,12 @@ try:
         loyalty_dist.columns = ['segment', 'count']
         loyalty_dist['percentage'] = (loyalty_dist['count'] / loyalty_dist['count'].sum() * 100).round(1)
         
-        # Define colors for tiers
-        tier_colors = {'Platinum': '#E5E4E2', 'Gold': '#FFD700', 'Silver': '#C0C0C0'}
+        # Define colors for tiers - optimized for dark mode visibility
+        tier_colors = {
+            'Platinum': '#E8E8E8',  # Bright platinum
+            'Gold': '#FFD700',      # Gold (unchanged)
+            'Silver': '#B8B8B8'     # Brighter silver for dark mode
+        }
         loyalty_dist['color'] = loyalty_dist['segment'].map(tier_colors)
         
         fig_loyalty = px.pie(
