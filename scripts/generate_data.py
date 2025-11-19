@@ -133,7 +133,7 @@ def generate_customers():
 # ============================================================================
 # 5️⃣ SALES TRANSACTIONS (WITH BASKET LOGIC)
 # ============================================================================
-def generate_sales(stores, sku_master, customers, promotions_df):
+def generate_sales(stores, sku_master, customers, promotions_df, output_path):
     print("Generating Sales Transactions with Basket Logic...")
     
     dates = pd.date_range(START_DATE, END_DATE, freq="D")
@@ -141,8 +141,6 @@ def generate_sales(stores, sku_master, customers, promotions_df):
     # Basket Logic: Define related categories
     # If you buy Pasta (Grocery), you might buy Sauce (Grocery) or Cheese (Dairy)
     # If you buy Shampoo (Personal Care), you might buy Conditioner (Personal Care)
-    
-    sales_data = []
     
     sku_list = sku_master["sku_id"].values
     sku_cats = dict(zip(sku_master["sku_id"], sku_master["category"]))
@@ -156,9 +154,6 @@ def generate_sales(stores, sku_master, customers, promotions_df):
 
     transaction_id_counter = 1
     
-    # Process day by day (simplified for performance in this demo)
-    # In a real scenario, we might vectorize, but basket logic is easier to read iteratively
-    
     total_days = len(dates)
     print(f"   Processing {total_days} days...")
     
@@ -167,7 +162,11 @@ def generate_sales(stores, sku_master, customers, promotions_df):
     # So total daily transactions = BASE_DAILY_TRANSACTIONS * 50
     daily_tx_count = BASE_DAILY_TRANSACTIONS * 50 
     
+    # Initialize CSV with headers
+    first_chunk = True
+    
     for current_date in dates:
+        sales_data = [] # Reset buffer for each day
         is_promo = current_date in promo_map
         num_transactions = int(daily_tx_count * (1.5 if is_promo else 1.0))
         
@@ -216,18 +215,31 @@ def generate_sales(stores, sku_master, customers, promotions_df):
                     "quantity": np.random.randint(1, 4),
                     "unit_price": round(final_price, 2),
                     "total_value": round(final_price * np.random.randint(1, 4), 2), # simplified qty mult
-                    "total_value": round(final_price * np.random.randint(1, 4), 2), # simplified qty mult
                     "channel": np.random.choice(["Store", "Website", "MobileApp", "Amazon.ae", "Noon"], p=[0.5, 0.25, 0.15, 0.07, 0.03]),
-                    "discount_pct": discount,
                     "discount_pct": discount,
                     "transaction_id": transaction_id_counter
                 })
             
             transaction_id_counter += 1
             
-    sales = pd.DataFrame(sales_data)
-    print(f"Generated {len(sales)} sales records")
-    return sales
+        # Write daily chunk to CSV
+        if sales_data:
+            df_chunk = pd.DataFrame(sales_data)
+            mode = 'w' if first_chunk else 'a'
+            header = first_chunk
+            df_chunk.to_csv(output_path, mode=mode, header=header, index=False)
+            first_chunk = False
+            
+            # Explicitly clean up to ensure memory is freed
+            del df_chunk
+            del sales_data
+            import gc
+            gc.collect()
+            
+        if current_date.day % 10 == 0:
+            print(f"   Processed {current_date.date()}...")
+            
+    print(f"Sales data generation complete. Saved to {output_path}")
 
 # ============================================================================
 # 6️⃣ INVENTORY
@@ -261,15 +273,17 @@ if __name__ == "__main__":
     skus = generate_skus()
     promos = generate_promotions(START_DATE, END_DATE)
     customers = generate_customers()
-    sales = generate_sales(stores, skus, customers, promos)
-    inventory = generate_inventory(stores, skus)
     
-    # Save using config paths
+    # Save masters first
     stores.to_csv(config.FILE_STORES, index=False)
     skus.to_csv(config.FILE_SKUS, index=False)
     promos.to_csv(config.FILE_PROMOTIONS, index=False)
     customers.to_csv(config.FILE_CUSTOMERS, index=False)
-    sales.to_csv(config.FILE_SALES, index=False)
+    
+    # Generate and save sales (streaming)
+    generate_sales(stores, skus, customers, promos, config.FILE_SALES)
+    
+    inventory = generate_inventory(stores, skus)
     inventory.to_csv(config.FILE_INVENTORY, index=False)
     
     print("Data Generation Complete!")

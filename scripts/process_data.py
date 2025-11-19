@@ -15,10 +15,9 @@ import config
 def process_data():
     print("Starting Data Processing...")
     
-    # 1. Load Data
+    # 1. Load Master Data (Small enough for memory)
     try:
-        print("   Loading raw data...")
-        sales = pd.read_csv(config.FILE_SALES, parse_dates=['date'])
+        print("   Loading master data...")
         skus = pd.read_csv(config.FILE_SKUS)
         stores = pd.read_csv(config.FILE_STORES)
         promos = pd.read_csv(config.FILE_PROMOTIONS, parse_dates=['start_date', 'end_date'])
@@ -27,55 +26,78 @@ def process_data():
         print("   Please run scripts/generate_data.py first.")
         return
 
-    # 2. Merge Data
-    print("   Merging datasets...")
-    # Merge Sales + SKU + Store
-    df = sales.merge(skus, on='sku_id', how='left').merge(stores, on='store_id', how='left')
-    
-    # 3. Optimize Promotion Matching (Vectorized approach using merge_asof if sorted, or simple join if ranges don't overlap much)
-    # For simplicity and robustness with ranges, we'll keep it simple but ensure it's efficient.
-    # Since we already have discount_pct in sales from generator, we might not need to re-match!
-    # But let's assume we need to enrich with promo NAME.
-    
-    # Sort for merge_asof
-    df = df.sort_values('date')
+    # Pre-process promos for faster lookup
     promos = promos.sort_values('start_date')
-    
-    # A simple approach for promo names:
-    # Create a daily promo lookup
     promo_lookup = {}
     for _, row in promos.iterrows():
         for d in pd.date_range(row['start_date'], row['end_date']):
             promo_lookup[d] = row['promo_name']
-            
-    df['promo_name'] = df['date'].map(promo_lookup).fillna('No Promotion')
-    
-    # 4. Feature Engineering
-    print("   Calculating metrics...")
-    df['month'] = df['date'].dt.month_name()
-    df['year'] = df['date'].dt.year
-    df['revenue'] = df['total_value']
-    df['profit'] = df['revenue'] - (df['cost_price'] * df['quantity'])
 
-    # 4.5 Calculate Global Summary Metrics (Pre-aggregation)
-    print("   Calculating global summary metrics...")
-    summary_metrics = {
-        "total_revenue": float(df['revenue'].sum()),
-        "total_profit": float(df['profit'].sum()),
-        "total_quantity": int(df['quantity'].sum()),
-        "avg_revenue_per_order": float(df['revenue'].mean()),
-        "avg_profit_per_order": float(df['profit'].mean())
+    # Initialize aggregation containers
+    partial_aggregates = []
+    
+    # Global metrics counters
+    global_metrics = {
+        "total_revenue": 0.0,
+        "total_profit": 0.0,
+        "total_quantity": 0,
+        "count": 0
     }
     
-    import json
-    print(f"Saving summary metrics to {config.FILE_SUMMARY_METRICS}")
-    with open(config.FILE_SUMMARY_METRICS, 'w') as f:
-        json.dump(summary_metrics, f)
+    chunk_size = 100000
+    print(f"   Processing sales data in chunks of {chunk_size}...")
     
-    # 5. Aggregation for Dashboard (Reduce file size)
-    print("   Aggregating for dashboard...")
-    # Group by key dimensions to make the dashboard fast
-    dashboard_df = df.groupby(
+    try:
+        # Process Sales in Chunks
+        chunk_iter = pd.read_csv(config.FILE_SALES, chunksize=chunk_size)
+        
+        for i, chunk in enumerate(chunk_iter):
+            # Merge
+            chunk = chunk.merge(skus, on='sku_id', how='left').merge(stores, on='store_id', how='left')
+            
+            # Feature Engineering
+            chunk['date'] = pd.to_datetime(chunk['date'], errors='coerce')
+            # Drop rows with invalid dates
+            chunk = chunk.dropna(subset=['date'])
+            chunk['promo_name'] = chunk['date'].map(promo_lookup).fillna('No Promotion')
+            chunk['month'] = chunk['date'].dt.month_name()
+            chunk['year'] = chunk['date'].dt.year
+            chunk['revenue'] = chunk['total_value']
+            chunk['profit'] = chunk['revenue'] - (chunk['cost_price'] * chunk['quantity'])
+            
+            # Update Global Metrics
+            global_metrics["total_revenue"] += chunk['revenue'].sum()
+            global_metrics["total_profit"] += chunk['profit'].sum()
+            global_metrics["total_quantity"] += int(chunk['quantity'].sum())
+            global_metrics["count"] += len(chunk)
+            
+            # Partial Aggregation for Dashboard
+            # Group by key dimensions to reduce size immediately
+            grouped_chunk = chunk.groupby(
+                ['date', 'month', 'year', 'store_id', 'store_name', 'category', 'channel', 'sku_id', 'sku_name']
+            ).agg(
+                revenue=('revenue', 'sum'),
+                profit=('profit', 'sum'),
+                quantity=('quantity', 'sum')
+            ).reset_index()
+            
+            partial_aggregates.append(grouped_chunk)
+            
+            if (i + 1) % 5 == 0:
+                print(f"   Processed {i + 1} chunks...")
+                
+    except FileNotFoundError:
+         print(f"Error: {config.FILE_SALES} not found.")
+         return
+
+    # 4. Final Aggregation
+    print("   Performing final aggregation...")
+    if not partial_aggregates:
+        print("No data processed.")
+        return
+
+    full_df = pd.concat(partial_aggregates)
+    dashboard_df = full_df.groupby(
         ['date', 'month', 'year', 'store_id', 'store_name', 'category', 'channel', 'sku_id', 'sku_name']
     ).agg(
         revenue=('revenue', 'sum'),
@@ -83,7 +105,22 @@ def process_data():
         quantity=('quantity', 'sum')
     ).reset_index()
     
-    # 6. Save
+    # 5. Save Summary Metrics
+    print("   Calculating final global metrics...")
+    summary_metrics = {
+        "total_revenue": float(global_metrics["total_revenue"]),
+        "total_profit": float(global_metrics["total_profit"]),
+        "total_quantity": int(global_metrics["total_quantity"]),
+        "avg_revenue_per_order": float(global_metrics["total_revenue"] / global_metrics["count"]) if global_metrics["count"] > 0 else 0,
+        "avg_profit_per_order": float(global_metrics["total_profit"] / global_metrics["count"]) if global_metrics["count"] > 0 else 0
+    }
+    
+    import json
+    print(f"Saving summary metrics to {config.FILE_SUMMARY_METRICS}")
+    with open(config.FILE_SUMMARY_METRICS, 'w') as f:
+        json.dump(summary_metrics, f)
+    
+    # 6. Save Dashboard Data
     print(f"Saving processed data to {config.FILE_DASHBOARD_DATA}")
     dashboard_df.to_csv(config.FILE_DASHBOARD_DATA, index=False)
     print("Data Processing Complete!")
