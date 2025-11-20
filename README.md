@@ -1,6 +1,6 @@
 <div align="center">
 
-![BlueMart Logo](assets/logo.png)
+<![BlueMart Logo](assets/logo.png)style="width:180px;">
 
 # BlueMart Retail LLC — 2025 Analytics Project
 
@@ -42,35 +42,9 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 
 ---
 
-## 📈 Dataset Overview
-
-| Aspect | Details |
-|--------|---------|
-| **Time Period** | Jan 1 – Dec 31, 2025 (daily granularity) |
-| **Stores** | 50 stores (Mall, High Street, Community) |
-| **SKU Universe** | 5,000 SKUs across 7 categories |
-| **Customers** | ~5,000 registered customers |
-| **Channels** | Store, Website, Mobile App, Amazon.ae, Noon |
-| **Transaction Volume** | 11.2M sales records |
-
-### Data Tables
-
-| Table | Rows | Description |
-|-------|------|-------------|
-| **Store Master** | 50 | store_id, store_name, city, store_type, opening_date |
-| **SKU Master** | 5,000 | sku_id, sku_name, category, subcategory, unit_price, cost_price, brand |
-| **Customer Master** | 5,000 | cust_id, age, gender, city, loyalty_segment, registration_date |
-| **Sales Transactions** | 11.2M | date, store_id, sku_id, customer_id, quantity, unit_price, total_value, channel, discount_pct |
-| **Inventory Snapshot** | 75,000 | store_id, sku_id, stock_on_hand, reorder_point, snapshot_date |
-| **Promotions** | 9 | promo_id, promo_name, start_date, end_date, discount_pct, promo_type |
-
----
-
 ## 🔑 Key Performance Indicators
 
 ### Executive Summary Metrics
-
-![KPI Overview Dashboard](assets/kpi_overview.png)
 
 | KPI | 2025 Performance | Insight |
 |-----|------------------|---------|
@@ -80,8 +54,6 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 | **Avg Transaction Value** | AED 80.12 | Consistent basket size |
 | **Avg Profit per Order** | AED 24.05 | Effective pricing strategy |
 
-> **Note**: Visualizations in this README are illustrative. For exact metrics, refer to the interactive dashboard or summary_metrics.json.
-
 ---
 
 ## 📊 Channel Performance
@@ -89,14 +61,6 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 ### Revenue Distribution
 
 ![Channel Distribution](assets/channel_distribution.png)
-
-| Channel | Revenue Share | Revenue (AED) |
-|---------|---------------|---------------|
-| **Store** | 50.0% | 448.5M |
-| **Website** | 25.0% | 224.2M |
-| **Mobile App** | 15.0% | 134.1M |
-| **Amazon.ae** | 7.0% | 62.6M |
-| **Noon** | 3.0% | 26.9M |
 
 ### Key Insights
 - Physical stores remain the core revenue driver at 50%
@@ -108,8 +72,6 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 ## 🛍️ Category Performance
 
 ### Revenue by Category
-
-![Category Performance](assets/category_performance.png)
 
 | Category | Revenue Share | Revenue (AED) | Margin % |
 |----------|---------------|---------------|----------|
@@ -126,17 +88,11 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 - All categories maintain healthy 30% gross margins
 - **FMCG categories** (Grocery, Dairy, Beverages, Snacks) drive traffic and frequent purchases
 
-### Margin Analysis
-
-![Margin by Category](assets/margin_by_category.png)
-
 ---
 
 ## 🏪 Store Performance
 
 ### Geographic Distribution
-
-![Store Performance Map](assets/store_performance_map.png)
 
 | City | Revenue Share | Revenue (AED) |
 |------|---------------|---------------|
@@ -298,7 +254,7 @@ I'm always looking to improve this project and would love to hear your thoughts:
 ## 👤 Author
 
 **Amir Khan**  
-Data Analyst | Retail Analytics Specialist  
+Data Analyst   
 [LinkedIn](https://www.linkedin.com/in/amir-khan-hussain/) | [Portfolio](https://amir-analyst.github.io/) | [Email](mailto:amirmailforbusiness@gmail.com)
 
 ---
