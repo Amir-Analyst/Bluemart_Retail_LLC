@@ -70,6 +70,8 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 
 ### Executive Summary Metrics
 
+![KPI Overview Dashboard](assets/kpi_overview.png)
+
 | KPI | 2025 Performance | Insight |
 |-----|------------------|---------|
 | **Total Revenue** | AED 896.4M | Strong omnichannel performance |
@@ -85,6 +87,8 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 ## 📊 Channel Performance
 
 ### Revenue Distribution
+
+![Channel Distribution](assets/channel_distribution.png)
 
 | Channel | Revenue Share | Revenue (AED) |
 |---------|---------------|---------------|
@@ -105,6 +109,8 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 
 ### Revenue by Category
 
+![Category Performance](assets/category_performance.png)
+
 | Category | Revenue Share | Revenue (AED) | Margin % |
 |----------|---------------|---------------|----------|
 | **Electronics** | 46.5% | 416.8M | 29.8% |
@@ -120,11 +126,17 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 - All categories maintain healthy 30% gross margins
 - **FMCG categories** (Grocery, Dairy, Beverages, Snacks) drive traffic and frequent purchases
 
+### Margin Analysis
+
+![Margin by Category](assets/margin_by_category.png)
+
 ---
 
 ## 🏪 Store Performance
 
 ### Geographic Distribution
+
+![Store Performance Map](assets/store_performance_map.png)
 
 | City | Revenue Share | Revenue (AED) |
 |------|---------------|---------------|
@@ -143,6 +155,10 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 ---
 
 ## 📅 Seasonal Trends
+
+### Monthly Revenue Trends
+
+![Monthly Trends](assets/monthly_trends.png)
 
 ### Top Revenue Months
 
@@ -167,6 +183,8 @@ Build a KPI-driven analytics framework to provide visibility into sales, invento
 ## 🎯 Customer Insights
 
 ### Loyalty Segmentation
+
+![Loyalty Segments](assets/loyalty_segments.png)
 
 | Tier | Customer % | Strategic Focus |
 |------|------------|-----------------|
@@ -252,9 +270,28 @@ All categories maintain 30% gross margins, indicating effective pricing and cost
 
 ---
 
-## 📝 License
+## 📝 License & Open Source
 
-This project is for educational and portfolio purposes.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### 🌟 Open Source & Contributions
+
+This project is **open source** and available for the community to learn from, use, and build upon. I believe in the power of collaborative learning and knowledge sharing.
+
+**Why Open Source?**
+- 📚 **Educational Value**: This project demonstrates real-world data analytics workflows and best practices
+- 🤝 **Community Learning**: Others can learn from the implementation and apply similar approaches to their projects
+- 💡 **Continuous Improvement**: Feedback and suggestions help improve the quality and accuracy of the analysis
+
+**Feedback Welcome!**
+
+I'm always looking to improve this project and would love to hear your thoughts:
+- 🐛 Found a bug or issue? Please open an issue on GitHub
+- 💭 Have suggestions for improvements? I'd love to hear them
+- ⭐ If you find this project helpful, consider giving it a star!
+- 🔄 Feel free to fork and adapt for your own learning purposes
+
+> **Note**: While this is an open source project, I appreciate proper attribution if you use or reference this work. This helps build a culture of recognition and encourages more open sharing in the data analytics community.
 
 ---
 
