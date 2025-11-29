@@ -1,7 +1,7 @@
 <div align="center">
 
 <div align="center">
-    <img src="assets/logo.png" width="300">
+    <img src="assets/bluemart.png" width="500">
 </div>
 
 # 2025 Business Analytics Project
@@ -232,36 +232,20 @@ All categories maintain 30% gross margins, indicating effective pricing and cost
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-### 🌟 Open Source & Contributions
-
-This project is **open source** and available for the community to learn from, use, and build upon. I believe in the power of collaborative learning and knowledge sharing.
-
-**Why Open Source?**
-- 📚 **Educational Value**: This project demonstrates real-world data analytics workflows and best practices
-- 🤝 **Community Learning**: Others can learn from the implementation and apply similar approaches to their projects
-- 💡 **Continuous Improvement**: Feedback and suggestions help improve the quality and accuracy of the analysis
-
-**Feedback Welcome!**
-
-I'm always looking to improve this project and would love to hear your thoughts:
-- 🐛 Found a bug or issue? Please open an issue on GitHub
-- 💭 Have suggestions for improvements? I'd love to hear them
-- ⭐ If you find this project helpful, consider giving it a star!
-- 🔄 Feel free to fork and adapt for your own learning purposes
-
-> **Note**: While this is an open source project, I appreciate proper attribution if you use or reference this work. This helps build a culture of recognition and encourages more open sharing in the data analytics community.
-
 ---
 
 ## 👤 Author
 
-**Amir Khan**  
-Data Analyst   
-[LinkedIn](https://www.linkedin.com/in/amir-khan-hussain/) | [Portfolio](https://amir-analyst.github.io/) | [Email](mailto:amirmailforbusiness@gmail.com)
-
+**Amir Khan**  Data Analyst   
+**Let's Connect**:
+*   💼 [LinkedIn](https://linkedin.com/in/amir-khan-hussain)
+*   💻 [Portfolio](https://amir-analyst.github.io)
+*   📧 [Email](mailto:your.email@example.com)
 ---
 
 <div align="center">
+
+### ⭐ If you find this project valuable, please consider starring it!
 
 **Built with data-driven retail excellence in mind**
 
