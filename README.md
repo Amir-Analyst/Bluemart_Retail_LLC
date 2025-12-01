@@ -1,7 +1,7 @@
 <div align="center">
 
 <div align="center">
-    <img src="assets/bluemart.png" width="500">
+    <img src="bluemart/assets/bluemart.png" width="500">
 </div>
 
 # 2025 Business Analytics Project
